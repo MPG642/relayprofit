@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Load {
+  id            String   @id @default(cuid())
+  relayId       String?  @unique
+  pickupAt      DateTime?
+  dropoffAt     DateTime?
+  originCity    String?
+  originState   String?
+  destCity      String?
+  destState     String?
+  miles         Int?
+  revenueCents  Int?
+  truckId       String?
+  trailerType   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  FuelMatches   FuelMatch[]
+}
+
+model Fuel {
+  id           String   @id @default(cuid())
+  txnAt        DateTime
+  state        String?
+  city         String?
+  gallons      Float
+  totalCents   Int
+  truckId      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  FuelMatches  FuelMatch[]
+}
+
+model FuelMatch {
+  id      String @id @default(cuid())
+  loadId  String
+  fuelId  String
+
+  load Load @relation(fields: [loadId], references: [id], onDelete: Cascade)
+  fuel Fuel @relation(fields: [fuelId], references: [id], onDelete: Cascade)
+
+  @@unique([loadId, fuelId])
+}
